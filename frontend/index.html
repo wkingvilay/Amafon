@@ -21,6 +21,17 @@
     </div>
 </header>
 
+<!-- Page Slider Navigation -->
+<div class="bg-white shadow-md sticky top-0 z-10">
+    <div class="container mx-auto px-4 py-3">
+        <div class="flex gap-2 overflow-x-auto">
+            <a href="amafon.html" class="px-4 py-2 bg-green-100 text-green-700 rounded-lg font-semibold whitespace-nowrap">🏠 Home</a>
+            <a href="seller-profile.html" class="px-4 py-2 rounded-lg hover:bg-gray-100 whitespace-nowrap">👤 Seller Profile</a>
+            <a href="checkout.html" class="px-4 py-2 rounded-lg hover:bg-gray-100 whitespace-nowrap">💳 Checkout</a>
+        </div>
+    </div>
+</div>
+
 <!-- 
 These are the product examples, add more if needed. These are currently just placeholders for products
 
@@ -39,7 +50,7 @@ https://heroicons.com/
             <div class="p-6">
                 <h3 class="text-xl font-semibold text-gray-800 mb-2">Product 1??</h3>
                 <p class="text-2xl font-bold text-indigo-600 mb-4">$24.00</p>
-                <button class="w-full bg-gradient-to-r from-green-500 to-green-600 text-white py-3 px-4 rounded-lg hover:from-green-600 hover:to-green-700 transition-all duration-200 font-semibold shadow-md" onclick="addToCart('Product 1??', 10)">
+                <button class="w-full bg-gradient-to-r from-green-500 to-green-600 text-white py-3 px-4 rounded-lg hover:from-green-600 hover:to-green-700 transition-all duration-200 font-semibold shadow-md" onclick="addToCart('Product 1??', 24)">
                     Add to Cart
                 </button>
             </div>
@@ -50,7 +61,7 @@ https://heroicons.com/
             <div class="p-6">
                 <h3 class="text-xl font-semibold text-gray-800 mb-2">Turkey 2</h3>
                 <p class="text-2xl font-bold text-indigo-600 mb-4">$150.00</p>
-                <button class="w-full bg-gradient-to-r from-green-500 to-green-600 text-white py-3 px-4 rounded-lg hover:from-green-600 hover:to-green-700 transition-all duration-200 font-semibold shadow-md" onclick="addToCart('Turkey 2', 15)">
+                <button class="w-full bg-gradient-to-r from-green-500 to-green-600 text-white py-3 px-4 rounded-lg hover:from-green-600 hover:to-green-700 transition-all duration-200 font-semibold shadow-md" onclick="addToCart('Turkey 2', 150)">
                     Add to Cart
                 </button>
             </div>
@@ -61,7 +72,7 @@ https://heroicons.com/
             <div class="p-6">
                 <h3 class="text-xl font-semibold text-gray-800 mb-2">Mini Cow</h3>
                 <p class="text-2xl font-bold text-indigo-600 mb-4">$1500.00</p>
-                <button class="w-full bg-gradient-to-r from-green-500 to-green-600 text-white py-3 px-4 rounded-lg hover:from-green-600 hover:to-green-700 transition-all duration-200 font-semibold shadow-md" onclick="addToCart('Mini Cow', 20)">
+                <button class="w-full bg-gradient-to-r from-green-500 to-green-600 text-white py-3 px-4 rounded-lg hover:from-green-600 hover:to-green-700 transition-all duration-200 font-semibold shadow-md" onclick="addToCart('Mini Cow', 1500)">
                     Add to Cart
                 </button>
             </div>
@@ -79,9 +90,14 @@ https://heroicons.com/
             <p class="text-gray-500 italic">Your cart is empty</p>
         </div>
         <div class="border-t pt-4 mt-4">
-            <p class="text-xl font-bold text-gray-800">
-                Total: <span id="total-price" class="text-indigo-600">$0.00</span>
-            </p>
+            <div class="flex justify-between items-center">
+                <p class="text-xl font-bold text-gray-800">
+                    Total: <span id="total-price" class="text-indigo-600">$0.00</span>
+                </p>
+                <button id="checkout-btn" onclick="window.location.href='checkout.html'" class="hidden bg-gradient-to-r from-green-500 to-green-600 text-white py-2 px-6 rounded-lg hover:from-green-600 hover:to-green-700 transition-all font-semibold shadow-md">
+                    Checkout
+                </button>
+            </div>
         </div>
     </div>
 </div>
@@ -95,22 +111,41 @@ removing items and also displaying the current state of cart
     let cart = [];
     let totalPrice = 0;
 
+    // Load cart from localStorage on page load
+    window.addEventListener('DOMContentLoaded', () => {
+        const savedCart = localStorage.getItem('cart');
+        if (savedCart) {
+            cart = JSON.parse(savedCart);
+            totalPrice = cart.reduce((sum, item) => sum + item.price, 0);
+            displayCart();
+        }
+    });
+
     function addToCart(productName, price) {
         cart.push({ name: productName, price: price });
         totalPrice += price;
+        saveCart();
         displayCart();
     }
 
     function removeFromCart(index) {
         totalPrice -= cart[index].price;
         cart.splice(index, 1);
+        saveCart();
         displayCart();
+    }
+
+    function saveCart() {
+        localStorage.setItem('cart', JSON.stringify(cart));
     }
 
     function displayCart() {
         const cartItemsContainer = document.getElementById('cart-items');
+        const checkoutBtn = document.getElementById('checkout-btn');
+        
         if (cart.length === 0) {
             cartItemsContainer.innerHTML = '<p class="text-gray-500 italic">Your cart is empty</p>';
+            checkoutBtn.classList.add('hidden');
         } else {
             cartItemsContainer.innerHTML = '';
             cart.forEach((item, index) => {
@@ -125,6 +160,7 @@ removing items and also displaying the current state of cart
                         </div>
                     </div>`;
             });
+            checkoutBtn.classList.remove('hidden');
         }
         document.getElementById('total-price').innerText = `$${totalPrice.toFixed(2)}`;
     }
