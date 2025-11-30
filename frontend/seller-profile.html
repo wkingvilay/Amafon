@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Seller Profile - Amafon</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-gradient-to-br from-slate-50 to-slate-100 min-h-screen">
+<header class="bg-gradient-to-r from-green-600 to-teal-600 text-white py-8 shadow-lg">
+    <div class="container mx-auto px-4">
+        <h1 class="text-4xl font-bold text-center">Amafon</h1> 
+        <p class="text-center text-indigo-100 mt-2">Seller Dashboard</p>
+    </div>
+</header>
+
+<!-- Page Slider Navigation -->
+<div class="bg-white shadow-md sticky top-0 z-10">
+    <div class="container mx-auto px-4 py-3">
+        <div class="flex gap-2 overflow-x-auto">
+            <a href="amafon.html" class="px-4 py-2 rounded-lg hover:bg-gray-100 whitespace-nowrap">🏠 Home</a>
+            <a href="seller-profile.html" class="px-4 py-2 bg-green-100 text-green-700 rounded-lg font-semibold whitespace-nowrap">👤 Seller Profile</a>
+            <a href="checkout.html" class="px-4 py-2 rounded-lg hover:bg-gray-100 whitespace-nowrap">💳 Checkout</a>
+        </div>
+    </div>
+</div>
+
+<div class="container mx-auto px-4 py-8 max-w-7xl">
+    <!-- Seller Info Card -->
+    <div class="bg-white rounded-xl shadow-lg p-8 mb-8">
+        <div class="flex items-center gap-6">
+            <div class="w-24 h-24 bg-gradient-to-br from-gray-200 to-blue-800 rounded-full flex items-center justify-center text-white text-4xl font-bold">
+                JS
+            </div>
+            <div>
+                <h2 class="text-3xl font-bold text-gray-800">John's Shop</h2>
+                <p class="text-gray-600 mt-1">Member since 2023</p>
+                <div class="flex gap-4 mt-2">
+                    <span class="text-sm bg-green-100 text-green-700 px-3 py-1 rounded-full">⭐ 4.8 Rating</span>
+                    <span class="text-sm bg-blue-100 text-blue-700 px-3 py-1 rounded-full">167 Sales</span>
+                </div>
+            </div>
+        </div>
+        <p class="mt-4 text-gray-700">Welcome to my shop! I sell quality products at great prices!</p>
+    </div>
+
+    <!-- Seller's Listings -->
+    <h3 class="text-2xl font-bold text-gray-800 mb-6">My Listings</h3>
+    
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div class="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-2xl transition-shadow duration-300">
+            <img src="https://tse4.mm.bing.net/th/id/OIP.LSvJ9WLh-fuNBMFmgUgtIgHaJh?rs=1&pid=ImgDetMain&o=7&rm=3" alt="Product 1" class="w-full h-48 object-cover">
+            <div class="p-6">
+                <h3 class="text-xl font-semibold text-gray-800 mb-2">The Hangover Trilogy: Blu-ray</h3>
+                <p class="text-2xl font-bold text-indigo-600 mb-2">$10.00</p>
+                <p class="text-sm text-gray-600 mb-4">In Stock: 25 items</p>
+                <div class="flex gap-2">
+                    <button class="flex-1 bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600 transition-all">
+                        Edit
+                    </button>
+                    <button class="flex-1 bg-red-500 text-white py-2 px-4 rounded-lg hover:bg-red-600 transition-all">
+                        Delete
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-2xl transition-shadow duration-300">
+            <img src="https://tse1.mm.bing.net/th/id/OIP.QJ_pBwaUVjK6951p1C28ogHaEo?rs=1&pid=ImgDetMain&o=7&rm=3" alt="Product 2" class="w-full h-48 object-cover">
+            <div class="p-6">
+                <h3 class="text-xl font-semibold text-gray-800 mb-2">Bean</h3>
+                <p class="text-2xl font-bold text-indigo-600 mb-2">$15.00</p>
+                <p class="text-sm text-gray-600 mb-4">In Stock: 15 items</p>
+                <div class="flex gap-2">
+                    <button class="flex-1 bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600 transition-all">
+                        Edit
+                    </button>
+                    <button class="flex-1 bg-red-500 text-white py-2 px-4 rounded-lg hover:bg-red-600 transition-all">
+                        Delete
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-2xl transition-shadow duration-300">
+            <img src="https://tse3.mm.bing.net/th/id/OIP.Lp6vxTxFw7hiVkOlsKnlpgHaJ3?rs=1&pid=ImgDetMain&o=7&rm=3" alt="Product 3" class="w-full h-48 object-cover">
+            <div class="p-6">
+                <h3 class="text-xl font-semibold text-gray-800 mb-2">MC</h3>
+                <p class="text-2xl font-bold text-indigo-600 mb-2">$20.00</p>
+                <p class="text-sm text-gray-600 mb-4">In Stock: 8 items</p>
+                <div class="flex gap-2">
+                    <button class="flex-1 bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600 transition-all">
+                        Edit
+                    </button>
+                    <button class="flex-1 bg-red-500 text-white py-2 px-4 rounded-lg hover:bg-red-600 transition-all">
+                        Delete
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add New Listing Button -->
+    <div class="mt-8 text-center">
+        <button class="bg-gradient-to-r from-green-500 to-green-600 text-white py-3 px-8 rounded-lg hover:from-green-600 hover:to-green-700 transition-all font-semibold shadow-md">
+            + Add New Listing
+        </button>
+    </div>
+</div>
+
+</body>
+</html>
