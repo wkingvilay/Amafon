@@ -1,155 +1,176 @@
+DROP DATABASE IF EXISTS AmazonDB;
 CREATE DATABASE AmazonDB;
 USE AmazonDB;
 
--- 1. 8 Tables comprising of:
--- 		Users 
--- 		Sellers
--- 		Categories
--- 		Products
--- 		Orders
--- 		OrderItems
--- 		Payments
--- 		Reviews
-
+-----------------------------------------------------
+-- USERS TABLE (customers + sellers accounts)
+-----------------------------------------------------
 CREATE TABLE Users (
-    user_id INT PRIMARY KEY AUTO_INCREMENT,
-    name VARCHAR(100),
-    email VARCHAR(100) UNIQUE NOT NULL,
-    backupEmail VARCHAR(100) NULL,
-    password_hash VARCHAR(255),
-    role ENUM('customer','seller') DEFAULT 'customer',
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    user_id        INT PRIMARY KEY AUTO_INCREMENT,
+    name           VARCHAR(100) NOT NULL,
+    email          VARCHAR(100) UNIQUE NOT NULL,
+    backupEmail    VARCHAR(100),
+    password_hash  VARCHAR(255) NOT NULL,
+    role           ENUM('customer','seller','admin') DEFAULT 'customer',
+    created_at     TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at     TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
+-----------------------------------------------------
+-- SELLERS TABLE (linked to Users)
+-----------------------------------------------------
 CREATE TABLE Sellers (
-    seller_id INT PRIMARY KEY AUTO_INCREMENT,
-    user_id INT,
-    store_name VARCHAR(100),
-    rating DECIMAL(3,2),
-    FOREIGN KEY (user_id) REFERENCES Users(user_id)
+    seller_id   INT PRIMARY KEY AUTO_INCREMENT,
+    user_id     INT NOT NULL,
+    store_name  VARCHAR(100) UNIQUE NOT NULL,
+    rating      DECIMAL(3,2) DEFAULT 0.00,
+    created_at  TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES Users(user_id) 
+        ON DELETE CASCADE
 );
 
+-----------------------------------------------------
+-- CATEGORIES TABLE
+-----------------------------------------------------
 CREATE TABLE Categories (
-    category_id INT PRIMARY KEY AUTO_INCREMENT,
-    category_name VARCHAR(100)
+    category_id   INT PRIMARY KEY AUTO_INCREMENT,
+    category_name VARCHAR(100) NOT NULL UNIQUE
 );
 
+-----------------------------------------------------
+-- PRODUCTS TABLE
+-----------------------------------------------------
 CREATE TABLE Products (
-    product_id INT PRIMARY KEY AUTO_INCREMENT,
-    seller_id INT,
-    category_id INT,
-    name VARCHAR(150),
-    description TEXT,
-    price DECIMAL(10,2),
-    stock INT CHECK (stock >= 0),
-    FOREIGN KEY (seller_id) REFERENCES Sellers(seller_id),
+    product_id     INT PRIMARY KEY AUTO_INCREMENT,
+    seller_id      INT NOT NULL,
+    category_id    INT,
+    name           VARCHAR(150) NOT NULL,
+    description    TEXT,
+    price          DECIMAL(10,2) NOT NULL CHECK (price >= 0),
+    stock          INT NOT NULL CHECK (stock >= 0),
+    image_url      VARCHAR(255),
+    condition      ENUM('New','Used - Like New','Used - Good','Used - Acceptable')
+                        DEFAULT 'New',
+    is_active      BOOLEAN DEFAULT TRUE,
+    created_at     TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at     TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (seller_id) REFERENCES Sellers(seller_id) 
+        ON DELETE CASCADE,
     FOREIGN KEY (category_id) REFERENCES Categories(category_id)
 );
 
+-----------------------------------------------------
+-- ORDERS TABLE
+-----------------------------------------------------
 CREATE TABLE Orders (
-    order_id INT PRIMARY KEY AUTO_INCREMENT,
-    user_id INT,
-    order_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    total_amount DECIMAL(10,2),
-    status ENUM('Pending','Shipped','Delivered','Cancelled'),
+    order_id      INT PRIMARY KEY AUTO_INCREMENT,
+    user_id       INT NOT NULL,
+    order_date    TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    total_amount  DECIMAL(10,2) NOT NULL CHECK (total_amount >= 0),
+    status        ENUM('Pending','Paid','Shipped','Delivered','Cancelled') 
+                      DEFAULT 'Pending',
+    shipping_address VARCHAR(255),
     FOREIGN KEY (user_id) REFERENCES Users(user_id)
+        ON DELETE CASCADE
 );
 
+-----------------------------------------------------
+-- ORDER ITEMS TABLE
+-----------------------------------------------------
 CREATE TABLE OrderItems (
     order_item_id INT PRIMARY KEY AUTO_INCREMENT,
-    order_id INT,
-    product_id INT,
-    quantity INT CHECK (quantity > 0),
-    price DECIMAL(10,2),
-    FOREIGN KEY (order_id) REFERENCES Orders(order_id),
+    order_id      INT NOT NULL,
+    product_id    INT NOT NULL,
+    quantity      INT NOT NULL CHECK (quantity > 0),
+    price         DECIMAL(10,2) NOT NULL CHECK (price >= 0),
+    FOREIGN KEY (order_id) REFERENCES Orders(order_id)
+        ON DELETE CASCADE,
     FOREIGN KEY (product_id) REFERENCES Products(product_id)
 );
 
+-----------------------------------------------------
+-- PAYMENTS TABLE (mock-safe: only last4 digits)
+-----------------------------------------------------
 CREATE TABLE Payments (
-    payment_id INT PRIMARY KEY AUTO_INCREMENT,
-    order_id INT,
-    amount DECIMAL(10,2),
-    payment_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    method ENUM('Credit Card','PayPal','Gift Card'),
+    payment_id       INT PRIMARY KEY AUTO_INCREMENT,
+    order_id         INT NOT NULL,
+    amount           DECIMAL(10,2) NOT NULL CHECK (amount >= 0),
+    payment_date     TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    method           ENUM('Credit Card','PayPal','Gift Card') NOT NULL,
+
+    -- mock card info (safe for assignments)
+    card_last4       CHAR(4),
+    billing_address  VARCHAR(255),
+
     FOREIGN KEY (order_id) REFERENCES Orders(order_id)
+        ON DELETE CASCADE
 );
 
+-----------------------------------------------------
+-- REVIEWS TABLE
+-----------------------------------------------------
 CREATE TABLE Reviews (
-    review_id INT PRIMARY KEY AUTO_INCREMENT,
-    product_id INT,
-    user_id INT,
-    rating INT CHECK (rating BETWEEN 1 AND 5),
-    comment TEXT,
-    review_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (product_id) REFERENCES Products(product_id),
+    review_id    INT PRIMARY KEY AUTO_INCREMENT,
+    product_id   INT NOT NULL,
+    user_id      INT NOT NULL,
+    rating       INT NOT NULL CHECK (rating BETWEEN 1 AND 5),
+    title        VARCHAR(100),
+    comment      TEXT,
+    review_date  TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (product_id) REFERENCES Products(product_id)
+        ON DELETE CASCADE,
     FOREIGN KEY (user_id) REFERENCES Users(user_id)
+        ON DELETE CASCADE
 );
 
--- 2. Data in table 
-INSERT INTO Users (name, email, role) VALUES
-('Rick Harrison', 'harryR@mypawnshop.com', 'seller'),
-('x', 'BuyMyMixtape@deathrowrecords.com', 'customer'),
-('y', 'ZZZZZSZZ@uri.edu', 'customer'),
-('z', 'ABABABABABABABAl@uri.edu', 'customer'),
-('w', 'vinefromvineswinger123@uri.edu', 'customer');
+-----------------------------------------------------
+-- INDEXES FOR PERFORMANCE
+-----------------------------------------------------
+CREATE INDEX idx_products_seller ON Products(seller_id);
+CREATE INDEX idx_products_category ON Products(category_id);
+CREATE INDEX idx_orderitems_order ON OrderItems(order_id);
+CREATE INDEX idx_reviews_product ON Reviews(product_id);
 
+-----------------------------------------------------
+-- SAMPLE DATA INSERTS
+-----------------------------------------------------
+
+-- Users
+INSERT INTO Users (name, email, password_hash, role) VALUES
+('Rick Harrison', 'harryR@mypawnshop.com', 'hash1', 'seller'),
+('Customer A', 'customerA@example.com', 'hash2', 'customer'),
+('Customer B', 'customerB@example.com', 'hash3', 'customer'),
+('Customer C', 'customerC@example.com', 'hash4', 'customer');
+
+-- Sellers
 INSERT INTO Sellers (user_id, store_name, rating) VALUES
-(1, 'Rick Harrison\'s Pawn Shop', 4.7);
+(1, 'Rick Harrison Pawn Shop', 4.7);
 
+-- Categories
 INSERT INTO Categories (category_name) VALUES
-('Electronics'), ('Books'), ('Clothing'), ('Toys & Games'), ('Video Games & Consoles'), ('Industrial & Scientific');
+('Electronics'), ('Books'), ('Clothing'), ('Games'), ('Industrial');
 
-INSERT INTO Products (seller_id, category_id, name, description, price, stock) VALUES
-(1, 1, 'Blue Eyes White Dragon', 'Yu-Gi-Oh Card', 1000000, 1),
-(1, 1, 'Super Mario Brothers (1985)', 'Sealed, authentic, copy of the original Super Mario Bros. for the Nintendo Entertainment System', 100000.00, 1),
-(1, 1, 'Veinlite LEDX Vein Finder', 'Veinlite LEDX is the leading vein access device in the field of sclerotherapy. 
-									LEDX was designed with the largest vein imaging area, 
-                                    allowing for fast and efficient treatment sessions.', 679.00, 1);
+-- Products
+INSERT INTO Products (seller_id, category_id, name, description, price, stock, image_url) VALUES
+(1, 1, 'Blue Eyes White Dragon', 'Ultra rare Yu-Gi-Oh card.', 1000000.00, 1, 'blueeyes.jpg'),
+(1, 1, 'Super Mario Bros (1985)', 'Sealed NES copy.', 100000.00, 1, 'smb1985.jpg'),
+(1, 5, 'Veinlite LEDX Vein Finder', 'Medical vein imaging device.', 679.00, 5, 'veinlite.jpg');
 
-INSERT INTO Orders (user_id, total_amount, status) VALUES
-(2, 1100000.00, 'Pending');
+-- Orders
+INSERT INTO Orders (user_id, total_amount, status, shipping_address) VALUES
+(2, 1100000.00, 'Pending', '123 Fake Street, NY');
 
+-- Order Items
 INSERT INTO OrderItems (order_id, product_id, quantity, price) VALUES
 (1, 1, 1, 1000000.00),
-(1, 2, 1, 100000.00),
-(1, 3, 1, 679.00);
+(1, 2, 1, 100000.00);
 
-INSERT INTO Payments (order_id, amount, method) VALUES
-(1, 1100000.00, 'Credit Card');
+-- Payment
+INSERT INTO Payments (order_id, amount, method, card_last4, billing_address) VALUES
+(1, 1100000.00, 'Credit Card', '1234', '123 Fake Street, NY');
 
-INSERT INTO Reviews (product_id, user_id, rating, comment) VALUES
-(1, 1, 1, 'lol'),
-(2, 1, 1, 'Fake, the seller is a fraud'),
-(3, 1, 5, 'Great product, my patients love it');
-
-
--- 3. Special Queries
-
--- This query shows each user and the products they’ve ordered. 
--- The outer join ensures that even customers who haven’t placed any orders yet still appear in the results.
-SELECT u.name AS customer_name, o.order_id, p.name AS product_name
-FROM Users u
-LEFT JOIN Orders o ON u.user_id = o.user_id
-LEFT JOIN OrderItems oi ON o.order_id = oi.order_id
-LEFT JOIN Products p ON oi.product_id = p.product_id;
-
--- This nested query compares each product’s price to the overall average price, 
--- showing only the more expensive items.
-SELECT name, price
-FROM Products
-WHERE price > (
-    SELECT AVG(price) FROM Products
-);
-
--- his creates a reusable virtual table that always shows our top-rated products
--- those with an average rating of 4.5 or higher. I can query it later just like a normal table
-CREATE VIEW TopRatedProducts AS
-SELECT p.name, s.store_name, AVG(r.rating) AS avg_rating
-FROM Products p
-JOIN Sellers s ON p.seller_id = s.seller_id
-JOIN Reviews r ON p.product_id = r.product_id
-GROUP BY p.name, s.store_name
-HAVING avg_rating >= 4.5;
-
-SELECT * FROM TopRatedProducts;
-
+-- Reviews
+INSERT INTO Reviews (product_id, user_id, rating, title, comment) VALUES
+(1, 1, 1, 'Bad', 'lol'),
+(2, 1, 1, 'Fake', 'Fake, seller is fraud'),
+(3, 1, 5, 'Great Tool', 'Patients love it');
