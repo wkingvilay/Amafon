@@ -42,10 +42,10 @@ async def update_seller(brand_name: str, seller_id: int):
         raise ValueError(f"Error updating user")
 
 # Deletes a seller based on seller_id
-async def delete_seller(user_id: int):
+async def delete_seller(seller_id: int):
     query = "DELETE FROM Sellers WHERE seller_id = :seller_id"
     try:
-        await database.execute(query=query, values={"seller_id": user_id})
+        await database.execute(query=query, values={"seller_id": seller_id})
         return True
     except:
         return False

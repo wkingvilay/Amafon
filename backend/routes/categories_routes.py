@@ -1,7 +1,7 @@
 from database import database
 from fastapi import APIRouter, HTTPException
 from schemas.categories import Categories, CategoriesRead
-from crud.categories_crud import get_categories, create_category, update_category, delete_category
+from crud.categories_crud import get_categories, get_category, create_category, update_category, delete_category
 
 router = APIRouter(prefix="/api/categories", tags=["Categories"])
 
@@ -10,6 +10,14 @@ async def api_get_categories():
     async with database:
         rows = await get_categories()
         return [CategoriesRead(**dict(r)) for r in rows]
+
+@router.get("/{category_id}", response_model=CategoriesRead)
+async def api_get_category(category_id: int):
+    async with database:
+        d = await get_category(category_id)
+        if not d:
+            raise HTTPException(status_code=404, detail="Category not found")
+        return CategoriesRead(**d)
 
 @router.post("/", response_model=CategoriesRead)
 async def api_create_category(category: Categories):

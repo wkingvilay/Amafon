@@ -1,8 +1,6 @@
-from datetime import datetime
 from database import database
 from fastapi import APIRouter, HTTPException
 from schemas.orders import Orders, OrdersRead
-from schemas.orderitems import Orderitems, OrderitemsRead
 from crud.orders_crud import get_user_orders, get_order, create_order, update_order, delete_order
 
 router = APIRouter(prefix="/api/orders", tags=["Orders"])

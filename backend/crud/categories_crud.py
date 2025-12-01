@@ -1,5 +1,3 @@
-import uuid
-
 from database import database
 
 # Returns all categories
@@ -8,6 +6,14 @@ async def get_categories():
         SELECT * FROM Categories
     """
     return await database.fetch_all(query)
+
+# Returns the name of a category based on category_id
+async def get_category(category_id: int):
+    query = """
+        SELECT * FROM Categories WHERE category_id = :category_id
+    """
+    row = await database.fetch_one(query=query, values={"category_id": category_id})
+    return dict(row) if row else None
 
 # Creates a category (not reflected, but SQL tables don't have unique tag)
 async def create_category(category_name: str):

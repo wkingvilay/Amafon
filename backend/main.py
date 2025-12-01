@@ -14,6 +14,8 @@ from routes.categories_routes import router as categories_router
 from routes.products_routes import router as products_router
 from routes.orders_routes import router as orders_router
 from routes.orderitems_routes import router as orderitems_router
+from routes.payments_routes import router as payments_router
+from routes.reviews_routes import router as reviews_router
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -40,6 +42,8 @@ app.include_router(categories_router)
 app.include_router(products_router)
 app.include_router(orders_router)
 app.include_router(orderitems_router)
+app.include_router(payments_router)
+app.include_router(reviews_router)
 
 # Create SQLAlchemy engine for admin
 engine = create_async_engine(DATABASE_URL)

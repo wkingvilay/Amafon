@@ -8,7 +8,7 @@ async def get_products(skip: int = 0, limit: int = 10):
     SELECT * FROM Products
     LIMIT :limit OFFSET :skip
     """
-    return await database.fetch_all(query, values={'skip': skip,'limit': limit})
+    return await database.fetch_all(query=query, values={'skip': skip,'limit': limit})
 
 # Returns information for a specific product based on product_id
 async def get_product(product_id: int):
