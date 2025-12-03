@@ -20,29 +20,30 @@ async def get_product(product_id: int):
     return dict(row) if row else None
 
 # Creates a new product
-async def create_product(seller_id: int, category_id: int, name: str, description: str, price: float, stock: int):
+async def create_product(seller_id: int, category_id: int, name: str, description: str, price: float, stock: int, image_url: str):
     query="""
-    INSERT INTO Products (seller_id, category_id, name, description, price, stock)
-    VALUES (:seller_id, :category_id, :name, :description, :price, :stock)
+    INSERT INTO Products (seller_id, category_id, name, description, price, stock, image_url)
+    VALUES (:seller_id, :category_id, :name, :description, :price, :stock, :image_url)
     """
     try:
-        product_id = await database.execute(query=query, values={
+        await database.execute(query=query, values={
             "seller_id": seller_id,
             "category_id": category_id,
             "name": name,
             "description": description,
             "price": price,
-            "stock": stock
+            "stock": stock,
+            "image_url": image_url
         })
-        return product_id
+        return database.fetch_val("SELECT LAST_INSERT_ID();")
     except Exception:
-        raise ValueError(f"Product already exists")
+        raise ValueError(f"Error creating product")
 
 # Updates an existing product based on product_id (seller_id is immutable)
-async def update_product(category_id: int, name: str, description: str, price: float, stock: int, product_id: int):
+async def update_product(category_id: int, name: str, description: str, price: float, stock: int, image_url: str, product_id: int):
     query="""
     UPDATE Products SET
-    category_id = :category_id, name = :name, description = :description, price = :price, stock = :stock
+    category_id = :category_id, name = :name, description = :description, price = :price, stock = :stock, image_url = :image_url
     WHERE product_id = :product_id
     """
     try:
@@ -52,6 +53,7 @@ async def update_product(category_id: int, name: str, description: str, price: f
             "description": description,
             "price": price,
             "stock": stock,
+            "image_url": image_url,
             "product_id": product_id
         })
         return True

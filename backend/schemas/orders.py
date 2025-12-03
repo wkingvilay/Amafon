@@ -3,16 +3,16 @@ from enum import Enum
 from pydantic import BaseModel
 
 class Status(str, Enum):
-    pending = "pending"
-    shipped = "shipped"
-    delivered = "delivered"
-    canceled = "cancelled"
+    Pending = "Pending"
+    Paid = "Paid"
+    Shipped = "Shipped"
+    Delivered = "Delivered"
+    Canceled = "Cancelled"
 
 class Orders(BaseModel):
+    order_id: int
     user_id: int #FK
     order_date: datetime
-    total_amount: float | None
-    status: Status = Status.pending
-
-class OrdersRead(Orders):
-    order_id: int
+    total_amount: float = 0
+    status: Status = Status.Pending
+    shipping_address: str | None

@@ -22,8 +22,8 @@ async def create_category(category_name: str):
     VALUES (:category_name)
     """
     try:
-        category_id = await database.execute(query, values={"category_name": category_name})
-        return category_id
+        await database.execute(query, values={"category_name": category_name})
+        return await database.fetch_val("SELECT LAST_INSERT_ID();")
     except Exception:
         raise ValueError(f"Category {category_name} already exists")
 

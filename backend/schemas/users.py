@@ -5,14 +5,14 @@ from pydantic import BaseModel
 class Role(str, Enum):
     customer = "customer"
     seller = "seller"
+    admin = "admin"
 
 class Users(BaseModel):
-    name: str | None
+    user_id: int
+    name: str
     email: str
-    password: str
+    backupEmail: str | None
+    password_hash: str
     role: Role = Role.customer
     created_at: datetime
-
-# user_id auto-increments in the SQL table, so it is separate from users
-class UsersRead(Users):
-    user_id: int | None
+    updated_at: datetime | None

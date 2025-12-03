@@ -13,18 +13,20 @@ async def get_payments_by_order(order_id: int):
     return await database.fetch_all(query, {"order_id": order_id})
 
 # Creates a new payment entry
-async def create_payment(order_id: int, amount: float, method: Method):
+async def create_payment(order_id: int, amount: float, method: Method, card_last4: str, billing_address: str):
     query = """
-    INSERT INTO Payments(order_id, amount, method)
-    VALUES (:order_id, :amount, :method)
+    INSERT INTO Payments(order_id, amount, method, card_last4, billing_address)
+    VALUES (:order_id, :amount, :method, :card_last4, :billing_address)
     """
     try:
-        payment_id = await database.execute(query=query, values={
+        await database.execute(query=query, values={
             "order_id": order_id,
             "amount": amount,
-            "method": method
+            "method": method,
+            "card_last4": card_last4,
+            "billing_address": billing_address
         })
-        return payment_id
+        return await database.fetch_val("SELECT LAST_INSERT_ID();")
     except Exception:
         raise ValueError(f"Something went wrong with payment creation.")
 

@@ -19,25 +19,25 @@ async def get_order(order_id: int):
     return dict(row) if row else None
 
 # Create an order
-async def create_order(user_id: int, status: Status):
+async def create_order(user_id: int, status: Status, shipping_address: str):
     query="""
-    INSERT INTO Orders (user_id, status)
-    VALUES (:user_id, :status)      
+    INSERT INTO Orders (user_id, status,  total_amount, shipping_address)
+    VALUES (:user_id, :status, 0, :shipping_address);
     """
     try:
-        order_id = await database.execute(query=query, values={"user_id": user_id, "status": status})
-        return order_id
+        await database.execute(query=query, values={"user_id": user_id, "status": status, "shipping_address": shipping_address})
+        return await database.fetch_val("SELECT LAST_INSERT_ID();")
     except Exception:
         raise ValueError("Something went wrong with order creation")
 
 # Update an order based on order_id (costs can be modified by changing orderitem entries)
-async def update_order(status: Status, order_id: int):
+async def update_order(status: Status, shipping_address: str, order_id: int):
     query="""
-    UPDATE Orders SET status = :status 
+    UPDATE Orders SET status = :status, shipping_address = :shipping_address 
     WHERE order_id = :order_id;
     """
     try:
-        await database.execute(query=query, values={"status": status, "order_id": order_id})
+        await database.execute(query=query, values={"status": status, "shipping_address": shipping_address, "order_id": order_id})
         return True
     except Exception:
         raise ValueError("Something went wrong with order update")

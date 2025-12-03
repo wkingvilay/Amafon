@@ -21,7 +21,7 @@ async def create_orderitem(order_id: int, product_id: int, quantity: int):
     VALUES (:order_id, :product_id, :quantity, :price)
     """
     try:
-        orderitem_id = await database.execute(query=query, values={
+        await database.execute(query=query, values={
             "order_id": order_id,
             "product_id": product_id,
             "quantity": quantity,
@@ -34,34 +34,34 @@ async def create_orderitem(order_id: int, product_id: int, quantity: int):
         await update_order_total(order_id=order_id)
     except Exception:
         raise ValueError("Something went wrong with order item update")
-
-    return orderitem_id
+    
+    return await database.fetch_val("SELECT LAST_INSERT_ID();")
 
 # Updates the quantity of items in an entry (I keep saying this, but FK are usually immutable)
-async def update_orderitem(quantity: int, orderitem_id: int):
+async def update_orderitem(quantity: int, order_item_id: int):
     price_query = """
         SELECT p.price FROM products p JOIN orderitems oi
-        ON oi.product_id = p.product_id WHERE oi.orderitem_id = :orderitem_id
+        ON oi.product_id = p.product_id WHERE oi.order_item_id = :order_item_id
     """
-    product = await database.fetch_one(price_query, values={"orderitem_id": orderitem_id})
+    product = await database.fetch_one(price_query, values={"order_item_id": order_item_id})
     if not product:
         raise ValueError("Product not found")
     price = product["price"]
 
     query="""
     UPDATE orderitems SET quantity = :quantity, price = :price
-    WHERE orderitem_id = :orderitem_id      
+    WHERE order_item_id = :order_item_id      
     """
     try:
-        await database.execute(query=query, values={"quantity": quantity, "price": price, "orderitem_id": orderitem_id})
+        await database.execute(query=query, values={"quantity": quantity, "price": price, "order_item_id": order_item_id})
     except Exception:
         raise ValueError("Error updating order item")
     try:
         order_id_query="""
             SELECT order_id FROM orderitems 
-            WHERE orderitem_id = :orderitem_id 
+            WHERE order_item_id = :order_item_id 
         """
-        row = await database.fetch_one(query=order_id_query, values={"orderitem_id": orderitem_id})
+        row = await database.fetch_one(query=order_id_query, values={"order_item_id": order_item_id})
         if not row:
             raise ValueError("Order item not found")
         order_id = row["order_id"]
@@ -69,22 +69,22 @@ async def update_orderitem(quantity: int, orderitem_id: int):
     except Exception:
         raise ValueError("Something went wrong with order item update")
 
-# Deletes an orderitem entry based on orderitem_id
-async def delete_orderitem(orderitem_id: int):
+# Deletes an orderitem entry based on order_item_id
+async def delete_orderitem(order_item_id: int):
     # Get the order_id before deletion
     order_id_query = """ \
                      SELECT order_id \
                      FROM orderitems \
-                     WHERE orderitem_id = :orderitem_id \
+                     WHERE order_item_id = :order_item_id \
                    """
-    row = await database.fetch_one(query=order_id_query, values={"orderitem_id": orderitem_id})
+    row = await database.fetch_one(query=order_id_query, values={"order_item_id": order_item_id})
     if not row:
         raise ValueError("Order item not found")
 
     order_id = row["order_id"]
-    query="DELETE FROM orderitems WHERE orderitem_id = :orderitem_id"
+    query="DELETE FROM orderitems WHERE order_item_id = :order_item_id"
     try:
-        await database.execute(query=query, values={"orderitem_id": orderitem_id})
+        await database.execute(query=query, values={"order_item_id": order_item_id})
     except:
         return False
     try:

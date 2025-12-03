@@ -19,35 +19,37 @@ async def get_user(user_id: int):
     return dict(row) if row else None
 
 # Creates a new user
-async def create_user(name: str, email: str, password: str, role: Role):
+async def create_user(name: str, email: str, backupEmail: str, password_hash: str, role: Role):
     query = """
-    INSERT INTO Users (name, email, password, role)
-    VALUES (:name, :email, :password, :role)
+    INSERT INTO Users (name, email, backupEmail, password_hash, role)
+    VALUES (:name, :email, :backupEmail, :password_hash, :role)
     """
     try:
-        user_id = await database.execute(query=query, values={
+        await database.execute(query=query, values={
             "name": name,
             "email": email,
-            "password": password,
+            "backupEmail": backupEmail,
+            "password_hash": password_hash,
             "role": role
         })
-        return user_id
+        return await database.fetch_val("SELECT LAST_INSERT_ID();")
     except Exception:
         # Raise clear error if code already exists (email already in use)
         raise ValueError(f"Account with email already exists.")
 
 # Updates an existing user based on user_id
-async def update_user(name: str, email: str, password: str, role: Role, user_id: int):
+async def update_user(name: str, email: str, backupEmail: str, password_hash: str, role: Role, user_id: int):
     query = """
     UPDATE Users SET
-    name = :name, email = :email, password= :password, role = :role
+    name = :name, email = :email, backupEmail = :backupEmail, password_hash= :password_hash, role = :role
     WHERE user_id = :user_id
     """
     try:
         await database.execute(query=query, values={
             "name": name,
             "email": email,
-            "password": password,
+            "backupEmail": backupEmail,
+            "password_hash": password_hash,
             "role": role,
             "user_id": user_id
         })
@@ -62,9 +64,9 @@ async def delete_user(user_id: int):
     return await database.execute(query=query, values={"user_id": user_id})
 
 # Attempts to log in based on credentials
-async def login_user(email: str, password: str):
+async def login_user(email: str, password_hash: str):
     query = """
-    SELECT * FROM Users WHERE email = :email AND password = :password
+    SELECT * FROM Users WHERE email = :email AND password_hash = :password_hash
     """
-    row = await database.fetch_one(query=query, values={"email": email, "password": password})
+    row = await database.fetch_one(query=query, values={"email": email, "password_hash": password_hash})
     return dict(row) if row else None

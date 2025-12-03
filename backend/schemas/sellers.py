@@ -1,8 +1,9 @@
 from pydantic import BaseModel
+from datetime import datetime
 
 class Sellers(BaseModel):
-    user_id: int #FK
-    brand_name: str | None
-
-class SellersRead(Sellers):
     seller_id: int
+    user_id: int #FK
+    store_name: str | None
+    rating: float = 0.0
+    created_at: datetime
