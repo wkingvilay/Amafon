@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order History</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gradient-to-br from-slate-50 to-slate-100 min-h-screen">
+
+<header class="bg-gradient-to-r from-green-600 to-teal-600 text-white py-8 shadow-lg">
+    <div class="container mx-auto px-4">
+        <h1 class="text-4xl font-bold text-center">Amafon</h1>
+        <p class="text-center text-indigo-100 mt-2">Track your orders</p>
+    </div>
+</header>
+
+<div class="bg-white shadow-md sticky top-0 z-10">
+    <div class="container mx-auto px-4 py-3">
+        <div class="flex gap-2 overflow-x-auto">
+            <a href="index.html" class="px-4 py-2 rounded-lg hover:bg-gray-100 whitespace-nowrap">🏠 Home</a>
+            <a href="seller-profile.html" class="px-4 py-2 rounded-lg hover:bg-gray-100 whitespace-nowrap">👤 Seller Profile</a>
+            <a href="createlisting.html" class="px-4 py-2 rounded-lg hover:bg-gray-100 whitespace-nowrap">➕ Create Listing</a>
+            <a href="orders.html" class="px-4 py-2 bg-green-100 text-green-700 rounded-lg font-semibold whitespace-nowrap">📦 Orders</a>
+            <a href="checkout.html" class="px-4 py-2 rounded-lg hover:bg-gray-100 whitespace-nowrap">💳 Checkout</a>
+        </div>
+    </div>
+</div>
+
+<div class="container mx-auto px-4 py-8 max-w-5xl">
+    <h2 class="text-3xl font-bold text-gray-800 mb-6">Your Orders</h2>
+
+    <div id="orders-list" class="space-y-6">
+        <!-- Orders will load here -->
+    </div>
+</div>
+
+<script>
+let orderIdMapping = {}; // Maps display index to database order_id
+
+async function loadOrders() {
+    // Load orders from database
+    try {
+        const response = await fetch("http://127.0.0.1:8007/api/orders/all/list");
+        if (!response.ok) {
+            console.error("Failed to load orders from database");
+            loadOrdersFromLocalStorage();
+            return;
+        }
+        
+        const dbOrders = await response.json();
+        const list = document.getElementById("orders-list");
+        
+        if (dbOrders.length === 0) {
+            list.innerHTML = '<div class="bg-white shadow-lg rounded-xl p-6 text-center text-gray-500">No orders yet</div>';
+            return;
+        }
+
+        list.innerHTML = "";
+        orderIdMapping = {};
+
+        dbOrders.forEach((o, index) => {
+            orderIdMapping[index] = o.order_id; // Store mapping
+            const orderDate = new Date(o.order_date).toLocaleDateString();
+            list.innerHTML += `
+            <div class="bg-white shadow-lg rounded-xl p-6 border border-gray-200">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-xl font-semibold text-gray-800">Order #${o.order_id}</h3>
+                    <div class="flex gap-2 items-center">
+                        <select id="status-${index}" class="px-3 py-1 rounded-full text-sm font-semibold border-2
+                            ${o.status === 'Delivered' ? 'bg-green-100 text-green-700 border-green-300' : ''}
+                            ${o.status === 'Shipped' ? 'bg-blue-100 text-blue-700 border-blue-300' : ''}
+                            ${o.status === 'Pending' ? 'bg-yellow-100 text-yellow-700 border-yellow-300' : ''}
+                            ${o.status === 'Cancelled' ? 'bg-red-100 text-red-700 border-red-300' : ''}"
+                            onchange="updateOrderStatus(${index}, this.value)">
+                            <option value="Pending" ${o.status === 'Pending' ? 'selected' : ''}>Pending</option>
+                            <option value="Shipped" ${o.status === 'Shipped' ? 'selected' : ''}>Shipped</option>
+                            <option value="Delivered" ${o.status === 'Delivered' ? 'selected' : ''}>Delivered</option>
+                            <option value="Cancelled" ${o.status === 'Cancelled' ? 'selected' : ''}>Cancelled</option>
+                        </select>
+                        <button onclick="deleteOrder(${index})" class="bg-red-500 text-white px-3 py-1 rounded-lg hover:bg-red-600 text-sm font-semibold">
+                            🗑️ Delete
+                        </button>
+                    </div>
+                </div>
+
+                <p class="text-gray-700 mb-2"><strong>Date:</strong> ${orderDate}</p>
+                <p class="text-gray-700 mb-2"><strong>Shipping Address:</strong> ${o.shipping_address || 'Not provided'}</p>
+                <p class="text-gray-700 mb-4"><strong>Total:</strong> $${parseFloat(o.total_amount).toFixed(2)}</p>
+
+                <h4 class="font-semibold text-gray-800 mb-2">Items:</h4>
+                <p class="text-gray-700 ml-4">${o.items || 'No items'}</p>
+            </div>`;
+        });
+        
+    } catch (error) {
+        console.error("Error loading orders from database:", error);
+        loadOrdersFromLocalStorage();
+    }
+}
+
+function loadOrdersFromLocalStorage() {
+    // Fallback: Load orders from localStorage
+    const orders = JSON.parse(localStorage.getItem('orders') || '[]');
+    const list = document.getElementById("orders-list");
+    
+    if (orders.length === 0) {
+        list.innerHTML = '<div class="bg-white shadow-lg rounded-xl p-6 text-center text-gray-500">No orders yet</div>';
+        return;
+    }
+
+    list.innerHTML = "";
+
+    orders.forEach((o, index) => {
+        const orderDate = new Date(o.date).toLocaleDateString();
+        list.innerHTML += `
+        <div class="bg-white shadow-lg rounded-xl p-6 border border-gray-200">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-xl font-semibold text-gray-800">Order #${index + 1} (Local)</h3>
+                <div class="flex gap-2 items-center">
+                    <select id="status-${index}" class="px-3 py-1 rounded-full text-sm font-semibold border-2
+                        ${o.status === 'Delivered' ? 'bg-green-100 text-green-700 border-green-300' : ''}
+                        ${o.status === 'Shipped' ? 'bg-blue-100 text-blue-700 border-blue-300' : ''}
+                        ${o.status === 'Pending' ? 'bg-yellow-100 text-yellow-700 border-yellow-300' : ''}
+                        ${o.status === 'Cancelled' ? 'bg-red-100 text-red-700 border-red-300' : ''}"
+                        onchange="updateOrderStatusLocal(${index}, this.value)">
+                        <option value="Pending" ${o.status === 'Pending' ? 'selected' : ''}>Pending</option>
+                        <option value="Shipped" ${o.status === 'Shipped' ? 'selected' : ''}>Shipped</option>
+                        <option value="Delivered" ${o.status === 'Delivered' ? 'selected' : ''}>Delivered</option>
+                        <option value="Cancelled" ${o.status === 'Cancelled' ? 'selected' : ''}>Cancelled</option>
+                    </select>
+                    <button onclick="deleteOrderLocal(${index})" class="bg-red-500 text-white px-3 py-1 rounded-lg hover:bg-red-600 text-sm font-semibold">
+                        🗑️ Delete
+                    </button>
+                </div>
+            </div>
+
+            <p class="text-gray-700 mb-2"><strong>Date:</strong> ${orderDate}</p>
+            <p class="text-gray-700 mb-2"><strong>Shipping Address:</strong> ${o.shipping_address || 'Not provided'}</p>
+            <p class="text-gray-700 mb-2"><strong>Subtotal:</strong> $${o.subtotal.toFixed(2)}</p>
+            <p class="text-gray-700 mb-2"><strong>Shipping:</strong> $${o.shipping.toFixed(2)}</p>
+            <p class="text-gray-700 mb-2"><strong>Tax:</strong> $${o.tax.toFixed(2)}</p>
+            <p class="text-gray-700 mb-4"><strong>Total:</strong> $${o.total.toFixed(2)}</p>
+
+            <h4 class="font-semibold text-gray-800 mb-2">Items:</h4>
+            <ul class="list-disc ml-6 text-gray-700">
+                ${o.items.map(i => `<li>${i.quantity}× ${i.name} - $${(i.price * i.quantity).toFixed(2)}</li>`).join('')}
+            </ul>
+        </div>`;
+    });
+}
+
+async function updateOrderStatus(orderIndex, newStatus) {
+    const orderId = orderIdMapping[orderIndex];
+    
+    try {
+        const response = await fetch(`http://127.0.0.1:8007/api/orders/${orderId}/status`, {
+            method: "PUT",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify({ status: newStatus })
+        });
+
+        if (!response.ok) {
+            alert("Failed to update order status in database");
+            return;
+        }
+
+        // Update the dropdown styling
+        const select = document.getElementById(`status-${orderIndex}`);
+        select.className = `px-3 py-1 rounded-full text-sm font-semibold border-2
+            ${newStatus === 'Delivered' ? 'bg-green-100 text-green-700 border-green-300' : ''}
+            ${newStatus === 'Shipped' ? 'bg-blue-100 text-blue-700 border-blue-300' : ''}
+            ${newStatus === 'Pending' ? 'bg-yellow-100 text-yellow-700 border-yellow-300' : ''}
+            ${newStatus === 'Cancelled' ? 'bg-red-100 text-red-700 border-red-300' : ''}`;
+        
+        alert(`Order #${orderId} status updated to ${newStatus} in database`);
+    } catch (error) {
+        console.error("Error updating order status:", error);
+        alert("Error updating order status");
+    }
+}
+
+async function deleteOrder(orderIndex) {
+    const orderId = orderIdMapping[orderIndex];
+    
+    if (!confirm(`Are you sure you want to delete Order #${orderId} from the database?`)) {
+        return;
+    }
+    
+    try {
+        const response = await fetch(`http://127.0.0.1:8007/api/orders/delete/${orderId}`, {
+            method: "DELETE"
+        });
+
+        if (!response.ok) {
+            alert("Failed to delete order from database");
+            return;
+        }
+
+        // Reload orders display
+        await loadOrders();
+        alert('Order deleted successfully from database');
+    } catch (error) {
+        console.error("Error deleting order:", error);
+        alert("Error deleting order");
+    }
+}
+
+// Functions for localStorage fallback
+function updateOrderStatusLocal(orderIndex, newStatus) {
+    let orders = JSON.parse(localStorage.getItem('orders') || '[]');
+    if (orders[orderIndex]) {
+        orders[orderIndex].status = newStatus;
+        localStorage.setItem('orders', JSON.stringify(orders));
+        
+        const select = document.getElementById(`status-${orderIndex}`);
+        select.className = `px-3 py-1 rounded-full text-sm font-semibold border-2
+            ${newStatus === 'Delivered' ? 'bg-green-100 text-green-700 border-green-300' : ''}
+            ${newStatus === 'Shipped' ? 'bg-blue-100 text-blue-700 border-blue-300' : ''}
+            ${newStatus === 'Pending' ? 'bg-yellow-100 text-yellow-700 border-yellow-300' : ''}
+            ${newStatus === 'Cancelled' ? 'bg-red-100 text-red-700 border-red-300' : ''}`;
+        
+        alert(`Local Order #${orderIndex + 1} status updated to ${newStatus}`);
+    }
+}
+
+function deleteOrderLocal(orderIndex) {
+    if (!confirm(`Are you sure you want to delete Local Order #${orderIndex + 1}?`)) {
+        return;
+    }
+    
+    let orders = JSON.parse(localStorage.getItem('orders') || '[]');
+    orders.splice(orderIndex, 1);
+    localStorage.setItem('orders', JSON.stringify(orders));
+    
+    loadOrdersFromLocalStorage();
+    alert('Local order deleted successfully');
+}
+
+window.addEventListener("DOMContentLoaded", loadOrders);
+</script>
+
+</body>
+</html>
