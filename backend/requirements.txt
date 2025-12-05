@@ -1,0 +1,6 @@
+fastapi
+uvicorn
+databases[aiomysql]
+pydantic
+starlette-admin
+python-multipart

@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checkout - Amafon</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-gradient-to-br from-slate-50 to-slate-100 min-h-screen">
+<header class="bg-gradient-to-r from-lime-200 to-teal-800 text-white py-8 shadow-lg">
+    <div class="container mx-auto px-4">
+        <h1 class="text-4xl font-bold text-center">Amafon</h1> 
+        <p class="text-center text-indigo-100 mt-2">Your Secure Checkout Experience Awaits!</p>
+    </div>
+</header>
+
+<!-- Page Slider Navigation -->
+<div class="bg-white shadow-md sticky top-0 z-10">
+    <div class="container mx-auto px-4 py-3">
+          <div class="flex gap-2 overflow-x-auto">
+            <a href="index.html" class="px-4 py-2 rounded-lg hover:bg-gray-100 whitespace-nowrap">🏠 Home</a>
+            <a href="seller-profile.html" class="px-4 py-2 rounded-lg hover:bg-gray-100 whitespace-nowrap">👤 Seller Profile</a>
+            <a href="createlisting.html" class="px-4 py-2 rounded-lg hover:bg-gray-100 whitespace-nowrap">➕ Create Listing</a>
+            <a href="orders.html" class="px-4 py-2 bg-green-100 text-green-700 rounded-lg font-semibold whitespace-nowrap">📦 Orders</a>
+            <a href="checkout.html" class="px-4 py-2 bg-green-100 text-green-700 rounded-lg font-semibold whitespace-nowrap">💳 Checkout</a>
+        </div>
+    </div>
+</div>
+
+<div class="container mx-auto px-4 py-8 max-w-4xl">
+    <div class="grid md:grid-cols-2 gap-8">
+        <!-- Left Column - Forms -->
+        <div>
+            <!-- Shipping Address -->
+              <div class="bg-white rounded-xl shadow-lg p-6 mb-6">
+                  <h2 class="text-2xl font-bold text-gray-800 mb-4 flex items-center">
+                    <svg class="w-6 h-6 mr-2 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                    </svg>
+                    Shipping Address
+                </h2>
+                <form id="shipping-form" class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-1">Full Name</label>
+                        <input name="fullname" type="text" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent" placeholder="John Doe" required>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-1">Address</label>
+                        <input name="address" type="text" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent" placeholder="123 Main St" required>
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-1">City</label>
+                            <input name="city" type="text" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent" placeholder="New York" required>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-1">ZIP Code</label>
+                            <input name="zip" type="text" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent" placeholder="10001" required>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Payment Info -->
+            <div class="bg-white rounded-xl shadow-lg p-6">
+                <h2 class="text-2xl font-bold text-gray-800 mb-4 flex items-center">
+                    <svg class="w-6 h-6 mr-2 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path>
+                    </svg>
+                    Payment Information
+                </h2>
+                <form id="payment-form" class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-1">Card Number</label>
+                        <input type="text" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent" placeholder="1234 5678 9012 3456" maxlength="19" required>
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-1">Expiry Date</label>
+                            <input type="text" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent" placeholder="MM/YY" maxlength="5" required>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-1">CVV</label>
+                            <input type="text" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent" placeholder="123" maxlength="3" required>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-1">Cardholder Name</label>
+                        <input type="text" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent" placeholder="John Doe" required>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Right Column -> Order Summary -->
+        <div>
+            <div class="bg-white rounded-xl shadow-lg p-6 sticky top-4">
+                <h2 class="text-2xl font-bold text-gray-800 mb-4">Order Summary</h2>
+                
+                <div id="order-items" class="space-y-3 mb-4 pb-4 border-b">
+                    <!-- Cart items will be inserted here -->
+                </div>
+
+                <div class="space-y-2 mb-4 pb-4 border-b">
+                    <div class="flex justify-between text-gray-600">
+                        <span>Subtotal</span>
+                        <span id="subtotal">$0.00</span>
+                    </div>
+                    <div class="flex justify-between text-gray-600">
+                        <span>Shipping</span>
+                        <span id="shipping">$5.00</span>
+                    </div>
+                    <div class="flex justify-between text-gray-600">
+                        <span>Tax</span>
+                        <span id="tax">$0.00</span>
+                    </div>
+                </div>
+
+                <div class="flex justify-between text-xl font-bold mb-6">
+                    <span>Total</span>
+                    <span class="text-green-600" id="total">$0.00</span>
+                </div>
+
+                <!-- Customized Button Text -->
+                <button onclick="processPayment()" class="w-full bg-gradient-to-r from-green-400 to-green-600 text-white py-3 px-4 rounded-lg hover:from-green-500 hover:to-green-700 transition-all font-semibold shadow-md">
+                    Finalize My Order
+                </button>
+
+                <p class="text-xs text-gray-500 text-center mt-4">🔒 Your payment info is secure</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Success Modal (hidden by default) -->
+<div id="success-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div class="bg-white rounded-2xl p-8 max-w-md mx-4 text-center">
+        <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <svg class="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+            </svg>
+        </div>
+        <h2 class="text-2xl font-bold text-gray-800 mb-2">Payment Successful!</h2>
+        <p class="text-gray-600 mb-6">Your order has been confirmed. Thank you for shopping with Amafon!</p>
+        <a href="index.html" class="inline-block bg-gradient-to-r from-green-500 to-green-600 text-white py-3 px-8 rounded-lg hover:from-green-600 hover:to-green-700 transition-all font-semibold">
+            Continue Shopping
+        </a>
+    </div>
+</div>
+
+<script>
+    // Load cart from localStorage to keep the cart state updated
+    window.addEventListener('DOMContentLoaded', () => {
+        loadCart();
+    });
+
+    function loadCart() {
+        const savedCart = localStorage.getItem('cart');
+        if (!savedCart || JSON.parse(savedCart).length === 0) {
+            document.getElementById('order-items').innerHTML = '<p class="text-gray-500 italic">Your cart is empty</p>';
+            return;
+        }
+
+        const cart = JSON.parse(savedCart);
+        const orderItemsContainer = document.getElementById('order-items');
+        orderItemsContainer.innerHTML = '';
+
+        let subtotal = 0;
+        cart.forEach(item => {
+            const itemTotal = item.price * item.quantity;
+            subtotal += itemTotal;
+            orderItemsContainer.innerHTML += `
+                <div class="flex justify-between">
+                    <span class="text-gray-700">${item.quantity}× ${item.name}</span>
+                    <span class="font-semibold">$${itemTotal.toFixed(2)}</span>
+                </div>
+            `;
+        });
+
+        const shipping = 5.00;
+        const tax = subtotal * 0.10; // 10% tax, change to whatever 
+        const total = subtotal + shipping + tax;
+
+        document.getElementById('subtotal').textContent = `$${subtotal.toFixed(2)}`;
+        document.getElementById('shipping').textContent = `$${shipping.toFixed(2)}`;
+        document.getElementById('tax').textContent = `$${tax.toFixed(2)}`;
+        document.getElementById('total').textContent = `$${total.toFixed(2)}`;
+    }
+
+    async function processPayment() {
+        const savedCart = localStorage.getItem('cart');
+        if (!savedCart || JSON.parse(savedCart).length === 0) {
+            alert("Your cart is empty!");
+            return;
+        }
+
+        const cart = JSON.parse(savedCart);
+        const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+        const shipping = 5.00;
+        const tax = subtotal * 0.10;
+        const total = subtotal + shipping + tax;
+
+        // Get shipping address from form
+        const shippingForm = document.getElementById('shipping-form');
+        const formData = new FormData(shippingForm);
+        const address = formData.get('address') || '123 Demo St';
+
+        // Create order object for localStorage
+        const orderData = {
+            items: cart,
+            subtotal: subtotal,
+            shipping: shipping,
+            tax: tax,
+            total: total,
+            date: new Date().toISOString(),
+            status: "Pending",
+            shipping_address: address
+        };
+
+        // Save order to localStorage for orders page
+        let orders = JSON.parse(localStorage.getItem('orders') || '[]');
+        orders.push(orderData);
+        localStorage.setItem('orders', JSON.stringify(orders));
+
+        // Send real order to backend database
+        try {
+            const response = await fetch("http://127.0.0.1:8007/api/orders/create-from-cart", {
+                method: "POST",
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify({
+                    user_id: 1,
+                    shipping_address: address,
+                    items: cart,
+                    total: total
+                })
+            });
+
+            if (!response.ok) {
+                console.error("Failed to create order in database:", response.status);
+            } else {
+                const result = await response.json();
+                console.log("Order created in database:", result);
+            }
+        } catch (error) {
+            console.error("Error creating order in backend:", error);
+        }
+
+        // Clear cart after payment
+        localStorage.removeItem('cart');
+
+        // Show success modal
+        document.getElementById('success-modal').classList.remove('hidden');
+
+        // Redirect to orders page after 3 seconds
+        setTimeout(() => {
+            window.location.href = 'orders.html';
+        }, 3000);
+    }
+</script>
+</body>
+</html>
+</script>
+</body>
+</html>
