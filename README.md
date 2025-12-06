@@ -1,5 +1,6 @@
 # Amafon
 E-Commerce Site with MySQL integration
+The version used in the video demo is located in the branch, demo. (not merged to main currently)
 
 ## Overview
 Amafon is a full-stack e-commerce platform with a FastAPI backend and vanilla JavaScript frontend. It includes complete CRUD operations for products, orders, users, sellers, and more.
